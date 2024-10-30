@@ -8,6 +8,8 @@ sys.path.insert(0, "/data/ERCblackholes4/sk939/for_aineias")
 
 #function calculates the mass flow rate at the virial radius for a single snapshot
 def mass_flow_rate(snap_dir, snap_number, delta_r=10):
+    h = 0.679 #dimensionless Hubble constant
+    seconds_per_year = 31557600 #number of seconds in a year
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
     redshift = rff.get_attribute(fof_file, "Redshift") #redshift
     a = rff.get_attribute(fof_file, "Time") #scale factor
@@ -47,9 +49,12 @@ def mass_flow_rate(snap_dir, snap_number, delta_r=10):
     negative_shell_indices = np.where(v_radial_shell < 0)[0]
     #Calculate outward going mass flow rate
     mdot_out = np.sum(masses_shell[positive_shell_indices]*v_radial_shell[positive_shell_indices]/delta_r) #units of 10^10 Msun/h * km/s /kpc
+    #multiply by 10^10 *31557600 km/kpc /h to get Msun/yr
+    mdot_out *= 10**10 *seconds_per_year*3.24*10**(-17)/h
     #Calculate inward going mass flow rate
     mdot_in = np.sum(masses_shell[negative_shell_indices]*v_radial_shell[negative_shell_indices]/delta_r)
+    mdot_in *= 10**10 *seconds_per_year*3.24*10**(-17)/h
     #Calculate net mass flow rate
-    mdot_tot = mdot_out + mdot_in 
+    mdot_tot = mdot_out + mdot_in #units of Msun/yr
     beta = mdot_out/sfr_within_one_r_vir #mass loading factor   
     return [redshift, mdot_tot, mdot_in, mdot_out, beta]
