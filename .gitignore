@@ -2,8 +2,5 @@
 
 read_fof_files.py
 read_snap_files.py
-mass_inflow_rate.png
-mass_loading_factor.png
-mass_outflow_rate.png
-net_mass_flow_rate.png
+Plots
 __pycache__
