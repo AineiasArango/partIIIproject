@@ -21,8 +21,6 @@ mdot_in2 = np.abs(data['mdot_in2'])
 mdot_out2 = data['mdot_out2']
 beta2 = data['beta2']
 cosmic_time2 = Planck18.age(redshifts2).value
-# Set y-axis to logarithmic scale
-
 
 # Plot mdot_in vs cosmic time
 plt.figure(figsize=(10,6))
