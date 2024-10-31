@@ -4,6 +4,7 @@ import read_fof_files as rff
 import read_snap_files as rsf
 import mass_flow_rate_function as mfr
 import sys
+from astropy.cosmology import Planck18
 sys.path.insert(0, "/data/ERCblackholes4/sk939/for_aineias")
 snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 
@@ -32,9 +33,11 @@ mdot_tot2 = data2[:,1]
 mdot_in2 = data2[:,2]
 mdot_out2 = data2[:,3]
 beta2 = data2[:,4]
-
 import os
 os.chdir("/home/aasnha2/Project/Plots")
+
+np.savez('mass_flow_rate_data.npz', redshifts1=redshifts1, mdot_tot1=mdot_tot1, mdot_in1=mdot_in1, mdot_out1=mdot_out1, beta1=beta1, redshifts2=redshifts2, mdot_tot2=mdot_tot2, mdot_in2=mdot_in2, mdot_out2=mdot_out2, beta2=beta2)
+
 # Plot mdot_in vs redshift
 plt.figure(figsize=(10,6))
 plt.plot(redshifts1, mdot_in1, 'b-', label='NoBHFableHighSNEff')

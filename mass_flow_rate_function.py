@@ -6,7 +6,7 @@ import read_snap_files as rsf
 import sys
 sys.path.insert(0, "/data/ERCblackholes4/sk939/for_aineias")
 
-#function calculates the mass flow rate at the virial radius for a single snapshot
+#function calculates the mass flow rate in Msun/yr at the virial radius for a single snapshot
 def mass_flow_rate(snap_dir, snap_number, delta_r=10):
     h = 0.679 #dimensionless Hubble constant
     seconds_per_year = 31557600 #number of seconds in a year
