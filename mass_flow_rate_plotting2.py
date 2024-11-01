@@ -6,8 +6,10 @@ import scipy
 import os
 os.chdir("/home/aasnha2/Project/Plots")
 
+# Load the data
 data = np.load('mass_flow_rate_data.npz')
 
+# Extract the data
 redshifts1 = data['redshifts1']
 mdot_tot1 = data['mdot_tot1']
 mdot_in1 = np.abs(data['mdot_in1'])

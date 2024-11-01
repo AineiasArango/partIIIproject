@@ -11,6 +11,7 @@ sys.path.insert(0, "/data/ERCblackholes4/sk939/for_aineias")
 snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 data1 = []
 
+#Loop through all the snapshots
 for i in range(45,87):
     snap_number = i
     data1.append(mfr.mass_flow_rate(snap_dir1, snap_number))
@@ -22,9 +23,12 @@ mdot_in1 = data1[:,2]
 mdot_out1 = data1[:,3]
 beta1 = data1[:,4]
 
+
 #NoBHFableHighSNEffHighRes
 snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 data2 = []
+
+#Loop through all the snapshots
 for i in range(45,87):
     snap_number = i
     data2.append(mfr.mass_flow_rate(snap_dir2, snap_number))

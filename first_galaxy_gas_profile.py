@@ -12,20 +12,23 @@ sys.path.insert(0,"/data/ERCblackholes4/sk939/for_aineias")
 snap_dir = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 snap_no = 86
 
-fof_file = rff.get_fof_filename(snap_dir, snap_no)
-subhalopos = rff.get_subhalo_data(fof_file, 'SubhaloPos')[0]
-Subhalo_Halfmass_rad = rff.get_subhalo_data(fof_file, 'SubhaloHalfmassRadType')[0,0]
+#get files
+fof_file = rff.get_fof_filename(snap_dir, snap_no) #fof file
+snap_name = rsf.get_snap_filename(snap_dir, snap_no) #snap file
 
-snap_name = rsf.get_snap_filename(snap_dir, snap_no)
-pos0 = rsf.get_snap_data(snap_name,0,"Coordinates") #use 0 because gas is particle type 0
-mass0 = rsf.get_snap_data(snap_name,0,"Masses")
+#get attributes
+subhalopos = rff.get_subhalo_data(fof_file, 'SubhaloPos')[0] #subhalo position
+Subhalo_Halfmass_rad = rff.get_subhalo_data(fof_file, 'SubhaloHalfmassRadType')[0,0] #subhalo half mass radius for gas
+pos0 = rsf.get_snap_data(snap_name,0,"Coordinates") #coordinates of gas (0) particles
+mass0 = rsf.get_snap_data(snap_name,0,"Masses") #masses of gas (0) particles
 
 #recentre coordinates
 recentred_pos0 = pos0 -subhalopos
 
-# Calculate the distance between each gas cell and the subhalo position
+# distance of each gas particle from the subhalo centre
 distances = np.sqrt(np.sum((recentred_pos0)**2, axis=1))
 
+#binning data for histogram
 bin_width = 0.1
 outer_limit = 10
 bin_values, bin_edges, binnumber = stats.binned_statistic(distances, mass0, statistic='sum', bins=np.arange(0, outer_limit + bin_width, bin_width))
