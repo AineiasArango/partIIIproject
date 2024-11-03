@@ -24,15 +24,21 @@ mdot_out2 = data['mdot_out2']
 beta2 = data['beta2']
 cosmic_time2 = Planck18.age(redshifts2).value
 
+plt.rcParams.update({'font.size': 17})
+plt.rcParams['axes.linewidth'] = 1.25
+plt.rcParams['xtick.major.size'] = 5
+plt.rcParams['xtick.major.width'] = 1.25
+
 # Plot mdot_in vs cosmic time
 plt.figure(figsize=(10,6))
 plt.plot(cosmic_time1, mdot_in1, 'b-', label='NoBHFableHighSNEff')
 plt.plot(cosmic_time2, mdot_in2, 'r-', label='NoBHFableHighSNEffHighRes')
 plt.xlabel('t [Gyr]')
-plt.xlim(min(cosmic_time1.min(), cosmic_time2.min()), max(cosmic_time1.max(), cosmic_time2.max()))
+plt.xlim(1.5, 6)
+plt.xticks([2, 3, 4, 5, 6])
 plt.ylabel('$\dot{M}_{in}(R_{vir})$ [M$_\odot yr^{-1}$]')
 plt.yscale('log')
-plt.title('Gas Mass Inflow Rate vs Cosmic Time')
+plt.yticks([1e-3, 1e-2, 1e-1])
 plt.legend()
 plt.gca().invert_xaxis()  # This inverts the x-axis
 plt.savefig('mass_inflow_rate_vs_cosmic_time.png')
@@ -43,10 +49,11 @@ plt.figure(figsize=(10,6))
 plt.plot(cosmic_time1, mdot_out1, 'b-', label='NoBHFableHighSNEff')
 plt.plot(cosmic_time2, mdot_out2, 'r-', label='NoBHFableHighSNEffHighRes')  
 plt.xlabel('t [Gyr]')
-plt.xlim(min(cosmic_time1.min(), cosmic_time2.min()), max(cosmic_time1.max(), cosmic_time2.max()))
+plt.xlim(1.5, 6)
+plt.xticks([2, 3, 4, 5, 6])
 plt.ylabel('$\dot{M}_{out}(R_{vir})$ [M$_\odot yr^{-1}$]')
 plt.yscale('log')
-plt.title('Gas Mass Outflow Rate vs Cosmic Time')
+plt.yticks([1e-3, 1e-2, 1e-1])
 plt.legend()
 plt.gca().invert_xaxis()  # This inverts the x-axis
 plt.savefig('mass_outflow_rate_vs_cosmic_time.png')
@@ -57,10 +64,11 @@ plt.figure(figsize=(10,6))
 plt.plot(cosmic_time1, beta1, 'b-', label='NoBHFableHighSNEff')
 plt.plot(cosmic_time2, beta2, 'r-', label='NoBHFableHighSNEffHighRes')  
 plt.xlabel('t [Gyr]')
-plt.xlim(min(cosmic_time1.min(), cosmic_time2.min()), max(cosmic_time1.max(), cosmic_time2.max()))
+plt.xlim(1.5,6)
+plt.xticks([2, 3, 4, 5, 6])
 plt.ylabel(r'$\beta_{out}(R_{vir})$')
 plt.yscale('log')
-plt.title('Beta vs Cosmic Time')
+plt.yticks([1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3])
 plt.legend()
 plt.gca().invert_xaxis()  # This inverts the x-axis
 plt.savefig('beta_vs_cosmic_time.png')
