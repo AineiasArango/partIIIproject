@@ -13,7 +13,7 @@ snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 data1 = []
 
 #Loop through all the snapshots
-for i in range(45,87): #45 to 87
+for i in range(55,87): #45 to 87
     snap_number = i
     data1.append(mfr.mass_flow_rate(snap_dir1, snap_number))
     print(i)
@@ -31,7 +31,7 @@ snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 data2 = []
 
 #Loop through all the snapshots
-for i in range(45,87): #45 to 87
+for i in range(55,87): #45 to 87
     snap_number = i
     data2.append(mfr.mass_flow_rate(snap_dir2, snap_number))
     print(i)

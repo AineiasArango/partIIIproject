@@ -12,7 +12,6 @@ sys.path.insert(0, "/data/ERCblackholes4/sk939/for_aineias")
 def mass_flow_rate(snap_dir, snap_number, delta_r=3):
     #constants
     h = 0.679 #dimensionless Hubble constant
-    #seconds_per_year = 31557600 #number of seconds in a year
     
     #get fof file and snap file
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
@@ -21,12 +20,12 @@ def mass_flow_rate(snap_dir, snap_number, delta_r=3):
     #get attributes and convert units
     redshift = rff.get_attribute(fof_file, "Redshift") #redshift
     a = rff.get_attribute(fof_file, "Time") #scale factor
-    subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position
-    r_vir = cu.cosmo_to_phys(rff.get_group_data(fof_file, "Group_R_Crit200")[0], a, h, length=True)#virial radius    
-    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions
-    mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses"), a, h, mass=True) #gas particle masses
-    sfr = rsf.get_snap_data(snap_name,0,"StarFormationRate") #gas cell sfr
-    v_gas = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Velocities"), a, h, velocity=True) #velocity of every gas particle in the snapshot
+    subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)
+    r_vir = cu.cosmo_to_phys(rff.get_group_data(fof_file, "Group_R_Crit200")[0], a, h, length=True)#virial radius (kpc)    
+    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
+    mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses"), a, h, mass=True) #gas particle masses (Msun)
+    sfr = rsf.get_snap_data(snap_name,0,"StarFormationRate") #gas cell sfr (Msun/yr)
+    v_gas = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Velocities"), a, h, velocity=True) #velocity of every gas particle in the snapshot (km/s)
     
     #find appropriate indices
     tree = spatial.cKDTree(pos0)
@@ -54,8 +53,9 @@ def mass_flow_rate(snap_dir, snap_number, delta_r=3):
     negative_shell_indices = np.where(v_radial_shell < 0)[0]
 
     #Calculate mass flow rates in Msun/yr
-    mdot_out = np.sum(mass_shell[positive_shell_indices]*v_radial_shell[positive_shell_indices]/delta_r) #out
-    mdot_in = np.sum(mass_shell[negative_shell_indices]*v_radial_shell[negative_shell_indices]/delta_r) #in - note this value is negative
+    unit_conversion = 31557600*3.24078e-17 #yr/s*km/kpc
+    mdot_out = np.sum(mass_shell[positive_shell_indices]*v_radial_shell[positive_shell_indices]/delta_r)*unit_conversion #out #Msun/yr
+    mdot_in = np.sum(mass_shell[negative_shell_indices]*v_radial_shell[negative_shell_indices]/delta_r)*unit_conversion #in - note this value is negative
     mdot_tot = mdot_out + mdot_in #tot
     beta = mdot_out/sfr_within_r_vir #mass loading factor   
     return [redshift, mdot_tot, mdot_in, mdot_out, beta]
