@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy.cosmology import Planck18
+from astropy.cosmology import Planck15
 import scipy
+import cosmo_utils as cu
 
 import os
 os.chdir("/home/aasnha2/Project/Plots")
@@ -15,61 +16,77 @@ mdot_tot1 = data['mdot_tot1']
 mdot_in1 = np.abs(data['mdot_in1'])
 mdot_out1 = data['mdot_out1']
 beta1 = data['beta1']
-cosmic_time1 = Planck18.age(redshifts1).value
+cosmic_time1 = Planck15.age(redshifts1).value
 
 redshifts2 = data['redshifts2']
 mdot_tot2 = data['mdot_tot2']
 mdot_in2 = np.abs(data['mdot_in2'])
 mdot_out2 = data['mdot_out2']
 beta2 = data['beta2']
-cosmic_time2 = Planck18.age(redshifts2).value
+cosmic_time2 = Planck15.age(redshifts2).value
 
-plt.rcParams.update({'font.size': 17})
+# Plotting parameters
+plt.rcParams.update({'font.size': 22})
 plt.rcParams['axes.linewidth'] = 1.25
 plt.rcParams['xtick.major.size'] = 5
 plt.rcParams['xtick.major.width'] = 1.25
 
 # Plot mdot_in vs cosmic time
-plt.figure(figsize=(10,6))
-plt.plot(cosmic_time1, mdot_in1, 'b-', label='NoBHFableHighSNEff')
-plt.plot(cosmic_time2, mdot_in2, 'r-', label='NoBHFableHighSNEffHighRes')
-plt.xlabel('t [Gyr]')
-plt.xlim(1.5, 6)
-plt.xticks([2, 3, 4, 5, 6])
-plt.ylabel('$\dot{M}_{in}(R_{vir})$ [M$_\odot yr^{-1}$]')
-plt.yscale('log')
-plt.yticks([1e-3, 1e-2, 1e-1])
-plt.legend()
-plt.gca().invert_xaxis()  # This inverts the x-axis
+fig, ax1 = plt.subplots(figsize=(8,6))
+plt.tight_layout(pad=3)
+ax1.plot(cosmic_time1, mdot_in1, 'b-', linewidth=3, label='NoBHFableHighSNEff')
+ax1.plot(cosmic_time2, mdot_in2, linestyle='-', color='lime', linewidth=3, label='NoBHFableHighSNEffHighRes')
+ax1.set_xlabel('t [Gyr]')
+ax1.set_xticks([2, 3, 4, 5])
+ax1.set_xlim(Planck15.age(4).value, Planck15.age(1).value)
+ax1.minorticks_on()
+ax1.tick_params(which='minor', length=3, width=1)
+ax1.tick_params(which='both', direction='in')
+plt.gca().invert_xaxis()
+ax1.set_ylabel('$\dot{M}_{in}(R_{vir})$ [M$_\odot yr^{-1}$]')
+ax1.set_yscale('log')
+ax1.set_yticks([1e-3, 1e-2, 1e-1])
+ax1.legend(frameon = False, fontsize=11)
+cu.add_redshifts_ticks(fig, int(1), int(4), fontsize=22)
 plt.savefig('mass_inflow_rate_vs_cosmic_time.png')
 plt.close()
 
 # Plot mdot_out vs cosmic time
-plt.figure(figsize=(10,6))
-plt.plot(cosmic_time1, mdot_out1, 'b-', label='NoBHFableHighSNEff')
-plt.plot(cosmic_time2, mdot_out2, 'r-', label='NoBHFableHighSNEffHighRes')  
-plt.xlabel('t [Gyr]')
-plt.xlim(1.5, 6)
-plt.xticks([2, 3, 4, 5, 6])
-plt.ylabel('$\dot{M}_{out}(R_{vir})$ [M$_\odot yr^{-1}$]')
-plt.yscale('log')
-plt.yticks([1e-3, 1e-2, 1e-1])
-plt.legend()
-plt.gca().invert_xaxis()  # This inverts the x-axis
+fig, ax1 = plt.subplots(figsize=(8,6))
+plt.tight_layout(pad=3)
+ax1.plot(cosmic_time1, mdot_out1, 'b-', linewidth=3, label='NoBHFableHighSNEff')
+ax1.plot(cosmic_time2, mdot_out2, linestyle='-', color='lime', linewidth=3, label='NoBHFableHighSNEffHighRes')
+ax1.set_xlabel('t [Gyr]')
+ax1.set_xticks([2, 3, 4, 5])
+ax1.set_xlim(Planck15.age(4).value, Planck15.age(1).value)
+ax1.minorticks_on()
+ax1.tick_params(which='minor', length=3, width=1)
+ax1.tick_params(which='both', direction='in')
+plt.gca().invert_xaxis()
+ax1.set_ylabel('$\dot{M}_{out}(R_{vir})$ [M$_\odot yr^{-1}$]')
+ax1.set_yscale('log')
+ax1.set_yticks([1e-3, 1e-2, 1e-1])
+ax1.legend(frameon = False, fontsize=11)
+cu.add_redshifts_ticks(fig, int(1), int(4), fontsize=22)
 plt.savefig('mass_outflow_rate_vs_cosmic_time.png')
 plt.close()
 
 # Plot beta vs cosmic time
-plt.figure(figsize=(10,6))
-plt.plot(cosmic_time1, beta1, 'b-', label='NoBHFableHighSNEff')
-plt.plot(cosmic_time2, beta2, 'r-', label='NoBHFableHighSNEffHighRes')  
-plt.xlabel('t [Gyr]')
-plt.xlim(1.5,6)
-plt.xticks([2, 3, 4, 5, 6])
-plt.ylabel(r'$\beta_{out}(R_{vir})$')
-plt.yscale('log')
-plt.yticks([1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3])
-plt.legend()
-plt.gca().invert_xaxis()  # This inverts the x-axis
+fig, ax1 = plt.subplots(figsize=(8,6))
+plt.tight_layout(pad=3)
+ax1.plot(cosmic_time1, beta1, 'b-', linewidth=3, label='NoBHFableHighSNEff')
+ax1.plot(cosmic_time2, beta2, linestyle='-', color='lime', linewidth=3, label='NoBHFableHighSNEffHighRes')
+ax1.set_xlabel('t [Gyr]')
+ax1.set_xticks([2, 3, 4, 5])
+ax1.set_xlim(Planck15.age(4).value, Planck15.age(1).value)
+ax1.minorticks_on()
+ax1.tick_params(which='minor', length=3, width=1)
+ax1.tick_params(which='both', direction='in')
+plt.gca().invert_xaxis()
+ax1.set_ylabel(r'$\beta_{out}(R_{vir})$')
+ax1.set_yscale('log')
+ax1.set_yticks([1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3])
+ax1.legend(frameon = False, fontsize=11)
+cu.add_redshifts_ticks(fig, int(1), int(4), fontsize=22)
 plt.savefig('beta_vs_cosmic_time.png')
 plt.close()

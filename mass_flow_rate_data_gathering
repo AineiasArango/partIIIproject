@@ -1,3 +1,4 @@
+
 import matplotlib.pyplot as plt
 import numpy as np
 import read_fof_files as rff
@@ -12,9 +13,10 @@ snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 data1 = []
 
 #Loop through all the snapshots
-for i in range(45,87):
+for i in range(45,87): #45 to 87
     snap_number = i
     data1.append(mfr.mass_flow_rate(snap_dir1, snap_number))
+    print(i)
 
 data1 = np.array(data1)
 redshifts1 = data1[:,0]
@@ -29,9 +31,10 @@ snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 data2 = []
 
 #Loop through all the snapshots
-for i in range(45,87):
+for i in range(45,87): #45 to 87
     snap_number = i
     data2.append(mfr.mass_flow_rate(snap_dir2, snap_number))
+    print(i)
 
 data2 = np.array(data2)
 redshifts2 = data2[:,0]
