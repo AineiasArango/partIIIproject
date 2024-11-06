@@ -19,3 +19,6 @@ def get_redshift(snap_dir, snap_number):
 
 def printred():
     print(get_redshift(dir1, snap), get_redshift(dir2, snap), Planck15.age(get_redshift(dir1, snap)).value, Planck15.age(get_redshift(dir2, snap)).value)
+def print_time(snap):
+    print(Planck15.age(get_redshift(dir1, snap)).value, Planck15.age(get_redshift(dir2, snap)).value)
+
