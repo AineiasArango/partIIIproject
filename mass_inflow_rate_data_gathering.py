@@ -1,11 +1,10 @@
 import numpy as np
 import read_fof_files as rff
-import read_snap_files as rsf
-from scipy import spatial
 import cosmo_utils as cu
-import mass_inflow_rate_function as mirf
+import mass_inflow_rate_functions as mirf
 import os
 
+os.chdir("/home/aasnha2/Project/Plots/mass_inflow_plots")
 snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 snap_number = 86
@@ -22,11 +21,15 @@ r_0 = 1e-4 #kpc
 #Done so that the bins touch and the bins are 10% the width of the radius
 ratio = 0.1
 fraction = (1+ratio/2)/(1-ratio/2)
-i_max = int(np.log(r_vir/r_0)/np.log(fraction)) + 1
+i_max = int(np.log(3*r_vir/r_0)/np.log(fraction)) + 1
 rads = r_0*np.logspace(0, i_max, num = i_max + 1, base = fraction)
 delta_rs = ratio*rads
 
-mdot_ins1 = np.array(mirf.mass_inflow_rates(snap_dir1, snap_number, rads, delta_rs))
-mdot_ins2 = np.array(mirf.mass_inflow_rates(snap_dir2, snap_number, rads, delta_rs))
-os.chdir("/home/aasnha2/Project/Plots")
-np.savez('mass_inflow_rate_data2119.npz', mdot_ins1=mdot_ins1, mdot_ins2=mdot_ins2, rads=rads)
+mdot_ins1 = np.array(mirf.mass_inflow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=False))
+mdot_ins2 = np.array(mirf.mass_inflow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=False))
+np.savez('mass_inflow_rate_data.npz', mdot_ins1=mdot_ins1, mdot_ins2=mdot_ins2, rads=rads)
+
+mdot_ins1_hot, mdot_ins1_cold = np.array(mirf.mass_inflow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=True))
+mdot_ins2_hot, mdot_ins2_cold = np.array(mirf.mass_inflow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=True))
+np.savez('mass_inflow_rate_T_data.npz', mdot_ins1_hot=mdot_ins1_hot, mdot_ins1_cold=mdot_ins1_cold, mdot_ins2_hot=mdot_ins2_hot, mdot_ins2_cold=mdot_ins2_cold, rads=rads)
+
