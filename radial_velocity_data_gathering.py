@@ -3,9 +3,10 @@ import read_fof_files as rff
 import read_snap_files as rsf
 from scipy import spatial
 import cosmo_utils as cu
-import radial_velocity_function as rvf
+import radial_velocity_functions as rvf
 import os
 
+os.chdir("/home/aasnha2/Project/Plots/radial_velocity_plots")
 snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 snap_number = 86
@@ -26,7 +27,12 @@ i_max = int(np.log(3*r_vir/r_0)/np.log(fraction)) + 1
 rads = r_0*np.logspace(0, i_max, num = i_max + 1, base = fraction)
 delta_rs = ratio*rads
 
-v_radials1 = np.array(rvf.radial_velocities(snap_dir1, snap_number, rads, delta_rs))
-v_radials2 = np.array(rvf.radial_velocities(snap_dir2, snap_number, rads, delta_rs))
-os.chdir("/home/aasnha2/Project/Plots")
+#data gathering
+v_radials1 = rvf.radial_velocity_function(snap_dir1, snap_number, rads, delta_rs)
+v_radials2 = rvf.radial_velocity_function(snap_dir2, snap_number, rads, delta_rs)
 np.savez('radial_velocity_data.npz', v_radials1=v_radials1, v_radials2=v_radials2, rads=rads)
+
+v_radials_hot1, v_radials_cold1 = rvf.radial_velocity_function(snap_dir1, snap_number, rads, delta_rs, split_temp = True)
+v_radials_hot2, v_radials_cold2 = rvf.radial_velocity_function(snap_dir2, snap_number, rads, delta_rs, split_temp = True)
+np.savez('radial_velocity_T_data.npz', v_radials_hot1=v_radials_hot1, v_radials_hot2=v_radials_hot2, v_radials_cold1=v_radials_cold1, v_radials_cold2=v_radials_cold2, rads=rads)
+

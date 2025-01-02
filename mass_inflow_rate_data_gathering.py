@@ -1,7 +1,7 @@
 import numpy as np
 import read_fof_files as rff
 import cosmo_utils as cu
-import mass_inflow_rate_functions as mirf
+import mass_flow_rate_functions as mfrf
 import os
 
 os.chdir("/home/aasnha2/Project/Plots/mass_inflow_plots")
@@ -25,11 +25,18 @@ i_max = int(np.log(3*r_vir/r_0)/np.log(fraction)) + 1
 rads = r_0*np.logspace(0, i_max, num = i_max + 1, base = fraction)
 delta_rs = ratio*rads
 
-mdot_ins1 = np.array(mirf.mass_inflow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=False))
-mdot_ins2 = np.array(mirf.mass_inflow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=False))
+mdot_ins1 = np.array(mfrf.mass_flow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=False))
+mdot_ins2 = np.array(mfrf.mass_flow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=False))
 np.savez('mass_inflow_rate_data.npz', mdot_ins1=mdot_ins1, mdot_ins2=mdot_ins2, rads=rads)
+mdot_outs1 = np.array(mfrf.mass_flow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=False, inflow=False))
+mdot_outs2 = np.array(mfrf.mass_flow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=False, inflow=False))
+np.savez('mass_outflow_rate_data.npz', mdot_outs1=mdot_outs1, mdot_outs2=mdot_outs2, rads=rads)
 
-mdot_ins1_hot, mdot_ins1_cold = np.array(mirf.mass_inflow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=True))
-mdot_ins2_hot, mdot_ins2_cold = np.array(mirf.mass_inflow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=True))
+
+mdot_ins1_hot, mdot_ins1_cold = np.array(mfrf.mass_flow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=True))
+mdot_ins2_hot, mdot_ins2_cold = np.array(mfrf.mass_flow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=True))
 np.savez('mass_inflow_rate_T_data.npz', mdot_ins1_hot=mdot_ins1_hot, mdot_ins1_cold=mdot_ins1_cold, mdot_ins2_hot=mdot_ins2_hot, mdot_ins2_cold=mdot_ins2_cold, rads=rads)
+mdot_outs1_hot, mdot_outs1_cold = np.array(mfrf.mass_flow_rate_function(snap_dir1, snap_number, rads, delta_rs, split_temp=True, inflow=False))
+mdot_outs2_hot, mdot_outs2_cold = np.array(mfrf.mass_flow_rate_function(snap_dir2, snap_number, rads, delta_rs, split_temp=True, inflow=False))
+np.savez('mass_outflow_rate_T_data.npz', mdot_outs1_hot=mdot_outs1_hot, mdot_outs1_cold=mdot_outs1_cold, mdot_outs2_hot=mdot_outs2_hot, mdot_outs2_cold=mdot_outs2_cold, rads=rads)
 

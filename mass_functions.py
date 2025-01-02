@@ -17,21 +17,16 @@ def mass_function(snap_dir, snap_number, rads, split_temp = False, temp_thresh =
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
     snap_name = rsf.get_snap_filename(snap_dir, snap_number)
 
-    #get host group
-    host_groups = cu.get_host_groups(snap_dir, snap_number, 0)
-    gal_inds = host_groups == 0
-
     #get attributes and convert units
     a = rff.get_attribute(fof_file, "Time") #scale factor
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)  
-    pos0 = rsf.get_snap_data(snap_name,0,"Coordinates") #gas particle positions (kpc)
-    gal_pos = cu.cosmo_to_phys(pos0[gal_inds], a, h, length=True) #halo gas particle positions (kpc)
-    gal_mass = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses")[gal_inds], a, h, mass=True) #gas particle masses (Msun)
-    x_e = rsf.get_snap_data(snap_name,0,"ElectronAbundance")[gal_inds] #electron abundance, n_e/n_H
-    int_energy = rsf.get_snap_data(snap_name,0,"InternalEnergy")[gal_inds]*(10**10) #internal energy of every gas particle in the snapshot (cm/s)^2
+    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
+    mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses"), a, h, mass=True) #gas particle masses (Msun
+    x_e = rsf.get_snap_data(snap_name,0,"ElectronAbundance") #electron abundance, n_e/n_H
+    int_energy = rsf.get_snap_data(snap_name,0,"InternalEnergy")*(10**10) #internal energy of every gas particle in the snapshot (cm/s)^2
 
     #Make the gas tree
-    gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
+    gas_tree = spatial.cKDTree(pos0)
     #if user wants to split the gas up into hot and cold gas with the threshold being at temp_thresh
     if split_temp:
         #get temperature field of gas particles
@@ -45,7 +40,7 @@ def mass_function(snap_dir, snap_number, rads, split_temp = False, temp_thresh =
                 masses_hot.append(0)
                 masses_cold.append(0)
             else:
-                masses_within_r = gal_mass[indices_within_r]
+                masses_within_r = mass0[indices_within_r]
                 T_within_r = T_gas[indices_within_r]
                 hot_inds = np.where(T_within_r > temp_thresh)[0]
                 cold_inds = np.where(T_within_r <= temp_thresh)[0]
@@ -63,7 +58,7 @@ def mass_function(snap_dir, snap_number, rads, split_temp = False, temp_thresh =
         masses = [] 
         for rad in rads:
             indices_within_r = gas_tree.query_ball_point(subhalopos, rad)
-            masses_within_r = gal_mass[indices_within_r]
+            masses_within_r = mass0[indices_within_r]
             mass_within_r = np.sum(masses_within_r)
             masses.append(mass_within_r)
 
@@ -84,18 +79,13 @@ def dm_mass_function(snap_dir, snap_number, rads, dm_part_mass):
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
     snap_name = rsf.get_snap_filename(snap_dir, snap_number)
 
-    #get host group
-    host_groups = cu.get_host_groups(snap_dir, snap_number, 1)
-    gal_inds = host_groups == 0
-
     #get attributes and convert units
     a = rff.get_attribute(fof_file, "Time") #scale factor
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)  
-    pos0 = rsf.get_snap_data(snap_name,1,"Coordinates") #dark matter particle positions (kpc)
-    gal_pos = cu.cosmo_to_phys(pos0[gal_inds], a, h, length=True) #halo gas particle positions (kpc)
+    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,1,"Coordinates"), a, h, length=True) #dark matter particle positions (kpc)
 
     #Make the gas tree
-    gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
+    gas_tree = spatial.cKDTree(pos0) #only build tree with cells from main halo
 
     masses = [] 
     for rad in rads:
@@ -121,24 +111,19 @@ def star_mass_function(snap_dir, snap_number, rads):
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
     snap_name = rsf.get_snap_filename(snap_dir, snap_number)
 
-    #get host group
-    host_groups = cu.get_host_groups(snap_dir, snap_number, 4)
-    gal_inds = host_groups == 0
-
     #get attributes and convert units
     a = rff.get_attribute(fof_file, "Time") #scale factor
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)  
     pos0 = rsf.get_snap_data(snap_name,4,"Coordinates") #gas particle positions (kpc)
-    gal_pos = cu.cosmo_to_phys(pos0[gal_inds], a, h, length=True) #halo gas particle positions (kpc)
-    gal_mass = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,4,"Masses")[gal_inds], a, h, mass=True) #gas particle masses (Msun)
+    mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,4,"Masses"), a, h, mass=True) #gas particle masses (Msun)
 
     #Make the gas tree
-    gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
+    gas_tree = spatial.cKDTree(pos0) #only build tree with cells from main halo
     
     masses = [] 
     for rad in rads:
         indices_within_r = gas_tree.query_ball_point(subhalopos, rad)
-        masses_within_r = gal_mass[indices_within_r]
+        masses_within_r = mass0[indices_within_r]
         mass_within_r = np.sum(masses_within_r)
         masses.append(mass_within_r)
 
@@ -172,19 +157,14 @@ def mass_density_function(snap_dir, snap_number, rads, delta_rs, split_temp = Fa
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
     snap_name = rsf.get_snap_filename(snap_dir, snap_number)
 
-    #get host group
-    host_groups = cu.get_host_groups(snap_dir, snap_number, 0)
-    gal_inds = host_groups == 0
-
     #get attributes and convert units
     a = rff.get_attribute(fof_file, "Time") #scale factor
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)  
-    pos0 = rsf.get_snap_data(snap_name,0,"Coordinates") #gas particle positions (kpc)
-    gal_pos = cu.cosmo_to_phys(pos0[gal_inds], a, h, length=True) #halo gas particle positions (kpc)
-    gal_mass = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses")[gal_inds], a, h, mass=True) #gas particle masses (Msun)
+    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
+    mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses"), a, h, mass=True) #gas particle masses (Msun)
 
     #Make the gas tree
-    gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
+    gas_tree = spatial.cKDTree(pos0) #only build tree with cells from main halo
 
     #if user wants to split the gas up into hot and cold gas with the threshold being at temp_thresh
     if split_temp:
@@ -195,8 +175,8 @@ def mass_density_function(snap_dir, snap_number, rads, delta_rs, split_temp = Fa
         gamma = 5/3
 
         #get electron abundance and internal energy
-        x_e = rsf.get_snap_data(snap_name,0,"ElectronAbundance")[gal_inds] #electron abundance, n_e/n_H
-        int_energy = rsf.get_snap_data(snap_name,0,"InternalEnergy")[gal_inds]*(10**10) #internal energy of every gas particle in the snapshot (cm/s)^2
+        x_e = rsf.get_snap_data(snap_name,0,"ElectronAbundance") #electron abundance, n_e/n_H
+        int_energy = rsf.get_snap_data(snap_name,0,"InternalEnergy")*(10**10) #internal energy of every gas particle in the snapshot (cm/s)^2
 
         #get temperature field of gas particles
         mu = 4*m_proton/(1+3*X_H+4*X_H*x_e)
@@ -212,7 +192,7 @@ def mass_density_function(snap_dir, snap_number, rads, delta_rs, split_temp = Fa
                 masses_hot.append(0)
                 masses_cold.append(0)
             else:
-                shell_masses = gal_mass[shell_indices]
+                shell_masses = mass0[shell_indices]
                 T_shell = T_gas[shell_indices]
                 hot_inds = np.where(T_shell > temp_thresh)[0]
                 cold_inds = np.where(T_shell <= temp_thresh)[0]
@@ -235,7 +215,7 @@ def mass_density_function(snap_dir, snap_number, rads, delta_rs, split_temp = Fa
             if len(shell_indices) == 0:
                 shell_mass = 0
             else:
-                shell_mass = np.sum(gal_mass[shell_indices])/delta_r
+                shell_mass = np.sum(mass0[shell_indices])/delta_r
             masses.append(shell_mass)
 
         return np.array(masses)
