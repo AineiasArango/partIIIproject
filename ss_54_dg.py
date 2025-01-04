@@ -5,6 +5,7 @@ import os
 import mass_functions as mf
 import mass_flow_rate_functions as mfrf
 import radial_velocity_functions as rvf
+import ang_mom_functions as amf
 
 snap_dir1="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
 snap_dir2="/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
@@ -76,4 +77,13 @@ for i in [54, 86]:
     v_radials_hot2, v_radials_cold2 = rvf.radial_velocity_function(snap_dir2, snap_number, rads, delta_rs, split_temp = True, temp_thresh = temp_thresh)
     np.savez('ss'+str(snap_number)+'_radial_velocity_T_data.npz', v_radials_hot1=v_radials_hot1, v_radials_hot2=v_radials_hot2, v_radials_cold1=v_radials_cold1, v_radials_cold2=v_radials_cold2, rads=rads)
     
+    #Angular momentum
+    ang_mom_mags_hot1, ang_mom_mags_cold1 = amf.ang_mom_function(snap_dir1, snap_number, rads, delta_rs, split_temp = True, temp_thresh = temp_thresh)
+    ang_mom_mags_hot2, ang_mom_mags_cold2 = amf.ang_mom_function(snap_dir2, snap_number, rads, delta_rs, split_temp = True, temp_thresh = temp_thresh)
+    np.savez('ss'+str(snap_number)+'_ang_mom_data.npz', ang_mom_mags_hot1=ang_mom_mags_hot1, ang_mom_mags_hot2=ang_mom_mags_hot2, ang_mom_mags_cold1=ang_mom_mags_cold1, ang_mom_mags_cold2=ang_mom_mags_cold2, rads=rads)
+
+    #Total angular momentum
+    tot_ang_mom_mags_hot1, tot_ang_mom_mags_cold1 = amf.tot_ang_mom_mag_function(snap_dir1, snap_number, rads, split_temp = True, temp_thresh = temp_thresh)    
+    tot_ang_mom_mags_hot2, tot_ang_mom_mags_cold2 = amf.tot_ang_mom_mag_function(snap_dir2, snap_number, rads, split_temp = True, temp_thresh = temp_thresh)
+    np.savez('ss'+str(snap_number)+'_tot_ang_mom_data.npz', tot_ang_mom_mags_hot1=tot_ang_mom_mags_hot1, tot_ang_mom_mags_hot2=tot_ang_mom_mags_hot2, tot_ang_mom_mags_cold1=tot_ang_mom_mags_cold1, tot_ang_mom_mags_cold2=tot_ang_mom_mags_cold2, rads=rads)
     print("Done with ss"+str(snap_number))

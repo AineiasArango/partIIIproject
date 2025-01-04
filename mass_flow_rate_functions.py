@@ -63,10 +63,10 @@ def mass_flow_rates(snap_dir, snap_number, rads, delta_rs, inflow = True):
             unit_conversion = 31557600*3.24078e-17 #yr/s*km/kpc
             if inflow:
                 negative_shell_indices = np.where(v_radial_shell < 0)[0]
-                mdot = -1*np.sum(mass_shell[negative_shell_indices]*v_radial_shell[negative_shell_indices]/delta_r)*unit_conversion #in - note this value is negative 
+                mdot = -1*np.sum(mass_shell[negative_shell_indices]*v_radial_shell[negative_shell_indices]/delta_r)*unit_conversion  #In units of Msun/yr (inflowing momentum per unit distance)
             else:
                 positive_shell_indices = np.where(v_radial_shell > 0)[0]
-                mdot = 1*np.sum(mass_shell[positive_shell_indices]*v_radial_shell[positive_shell_indices]/delta_r)*unit_conversion #out - note this value is positive 
+                mdot = 1*np.sum(mass_shell[positive_shell_indices]*v_radial_shell[positive_shell_indices]/delta_r)*unit_conversion #In units of Msun/yr
             
         mdots.append(mdot)
     return np.array(mdots)
