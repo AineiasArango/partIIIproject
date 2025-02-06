@@ -80,7 +80,7 @@ v_radials_hot2 = data['v_radials_hot2']
 v_radials_cold1 = data['v_radials_cold1']
 v_radials_cold2 = data['v_radials_cold2']
 #angular momentum
-data = np.load('ss'+str(snap_number)+'_ang_mom_data.npz')
+"""data = np.load('ss'+str(snap_number)+'_ang_mom_data.npz')
 ang_mom_mags_hot1 = data['ang_mom_mags_hot1']
 ang_mom_mags_hot2 = data['ang_mom_mags_hot2']
 ang_mom_mags_cold1 = data['ang_mom_mags_cold1']
@@ -90,7 +90,7 @@ data = np.load('ss'+str(snap_number)+'_tot_ang_mom_data.npz')
 tot_ang_mom_mags_hot1 = data['tot_ang_mom_mags_hot1']
 tot_ang_mom_mags_hot2 = data['tot_ang_mom_mags_hot2']
 tot_ang_mom_mags_cold1 = data['tot_ang_mom_mags_cold1']
-tot_ang_mom_mags_cold2 = data['tot_ang_mom_mags_cold2']
+tot_ang_mom_mags_cold2 = data['tot_ang_mom_mags_cold2']"""
 
 r_vir_label = False
 
@@ -115,12 +115,12 @@ radial_plotting_function(ydata=[mdot_ins1_hot, mdot_ins2_hot, mdot_ins1_cold, md
                          save_name='ss'+str(snap_number)+'_mdot_in_T_vs_r.png', save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)
 #mass density
 radial_plotting_function(ydata=[mass_densities1, mass_densities2], xdata=rads, data_labels=['NoAGNHighSN', 'NoAGNHighSNRes'], xlabel='r [pc]', 
-                         ylabel='Shell mass [M$_\odot$/pc]', r_vir=r_vir, save_name='ss'+str(snap_number)+'_mass_density_vs_r.png', 
+                         ylabel='Mass [M$_\odot$/pc]', r_vir=r_vir, save_name='ss'+str(snap_number)+'_mass_density_vs_r.png', 
                          save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)
 #mass density with temp split
 radial_plotting_function(ydata=[mass_densities_hot1, mass_densities_hot2, mass_densities_cold1, mass_densities_cold2], xdata=rads, 
                          data_labels=['NoAGNHighSN (hot)', 'NoAGNHighSNRes (hot)', 'NoAGNHighSN (cold)', 'NoAGNHighSNRes (cold)'], xlabel='r [pc]', 
-                         ylabel='Shell mass [M$_\odot$/pc]', temp_split=True, r_vir=r_vir, 
+                         ylabel='Mass [M$_\odot$/pc]', temp_split=True, r_vir=r_vir, 
                          save_name='ss'+str(snap_number)+'_mass_density_T_vs_r.png', save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)
 #internal mass
 radial_plotting_function(ydata=[masses1, masses2], xdata=rads, data_labels=['NoAGNHighSN', 'NoAGNHighSNRes'], xlabel='r [pc]', 
@@ -131,7 +131,7 @@ radial_plotting_function(ydata=[masses_hot1, masses_hot2, masses_cold1, masses_c
                          data_labels=['NoAGNHighSN (hot)', 'NoAGNHighSNRes (hot)', 'NoAGNHighSN (cold)', 'NoAGNHighSNRes (cold)'], xlabel='r [pc]', 
                          ylabel='M$_{\mathrm{gas}}(\mathrm{r})$ [M$_\odot$]', temp_split=True, r_vir=r_vir, 
                          save_name='ss'+str(snap_number)+'_internal_mass_T_vs_r.png', save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)
-#angular momentum
+"""#angular momentum
 radial_plotting_function(ydata=[ang_mom_mags_hot1, ang_mom_mags_hot2, ang_mom_mags_cold1, ang_mom_mags_cold2], xdata=rads, 
                          data_labels=['NoAGNHighSN (hot)', 'NoAGNHighSNRes (hot)', 'NoAGNHighSN (cold)', 'NoAGNHighSNRes (cold)'], xlabel='r [pc]', 
                          ylabel='Angular momentum [M$_\odot$ pc km/s]', temp_split=True, r_vir=r_vir, 
@@ -140,4 +140,4 @@ radial_plotting_function(ydata=[ang_mom_mags_hot1, ang_mom_mags_hot2, ang_mom_ma
 radial_plotting_function(ydata=[tot_ang_mom_mags_hot1, tot_ang_mom_mags_hot2, tot_ang_mom_mags_cold1, tot_ang_mom_mags_cold2], xdata=rads, 
                          data_labels=['NoAGNHighSN (hot)', 'NoAGNHighSNRes (hot)', 'NoAGNHighSN (cold)', 'NoAGNHighSNRes (cold)'], xlabel='r [pc]', 
                          ylabel='Total angular momentum [M$_\odot$ pc km/s]', temp_split=True, r_vir=r_vir, 
-                         save_name='ss'+str(snap_number)+'_tot_ang_mom_T_vs_r.png', save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)
+                         save_name='ss'+str(snap_number)+'_tot_ang_mom_T_vs_r.png', save_dir=save_dir, r_soft1=r_soft1, r_soft2=r_soft2, r_vir_label=r_vir_label)"""
