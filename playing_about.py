@@ -1,31 +1,42 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import read_fof_files as rff
-import read_snap_files as rsf
-import sys
-from scipy import spatial
-import cosmo_utils as cu
-import mass_flow_rate_function as mfr
-from astropy.cosmology import Planck15
-import neighbour_variables_dg as nv
+def get_smooth_neighbour_variables(snap_dir, snap_number):
+    #returns array of position, velocity, density, temperature, and mass of gas particles within smoothing_length of the subhalo
+    import numpy as np
+    import read_fof_files as rff
+    import read_snap_files as rsf
+    import cosmo_utils as cu
+    from scipy import spatial
+    from scipy.spatial import Voronoi
+    from scipy import constants
 
-data = np.load('/data/ERCblackholes4/aasnha2/for_aineias/plots/smooth_and_inout_test_results.npz')
-smooth_results = data['smooth_results']
-inout_results = data['inout_results']
+    #constants
+    h = 0.679 #dimensionless Hubble constant
 
-neighbour_poss = smooth_results[:,:,:3]
-neighbour_v_gass = smooth_results[:,:,3:6]
-neighbour_densitiess = smooth_results[:,:,6]
+    #get fof file and snap file
+    fof_file = rff.get_fof_filename(snap_dir, snap_number)
+    snap_name = rsf.get_snap_filename(snap_dir, snap_number)
 
-print(neighbour_poss.shape)
-print(neighbour_v_gass.shape)
-print(neighbour_densitiess.shape)
+    
+    #get attributes and convert units
+    a = rff.get_attribute(fof_file, "Time") #scale factor
+    subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)
+    subhaloCM = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloCM')[0], a, h, length=True) #subhalo centre of mass position (kpc)
+    pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
 
-in_or_out = []
-for neighbour_pos, neighbour_v_gas, neighbour_densities in zip(neighbour_poss, neighbour_v_gass, neighbour_densitiess):
-    in_or_out.append(nv.in_or_out_2(neighbour_pos, neighbour_v_gas, neighbour_densities))
 
-in_or_out = np.array(in_or_out)
-print(in_or_out.shape)
+    gas_tree = spatial.cKDTree(pos0)
 
-print(sum(in_or_out==inout_results))
+    #subhalopos is now at the origin and the perculiar velocity of the subhalo has been taken away.
+    central_index = gas_tree.query(subhalopos, k=1)[1]
+    central_index_2 = gas_tree.query(subhaloCM, k=1)[1]
+
+    return central_index, central_index_2
+
+snap_dir1 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableLowSNEff"
+snap_dir2 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
+
+for i in [10,50,80]:
+    central_index, central_index_2 = get_smooth_neighbour_variables(snap_dir1, i)
+    print(central_index, central_index_2)
+    central_index, central_index_2 = get_smooth_neighbour_variables(snap_dir2, i)
+    print(central_index, central_index_2)

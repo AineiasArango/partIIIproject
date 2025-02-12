@@ -124,7 +124,7 @@ def get_neighbour_variables(snap_dir, snap_number):
 
     return central_pos, adj_pos, adj_masses, adj_densities, adj_vels, adj_Ts, n_neighbours, r_vir, redshift
 
-def get_smooth_neighbour_variables(snap_dir, snap_number, num_neighbours=32, subhalopos=True, subhalocm=False, central_coord=np.array([0,0,0])):
+def get_smooth_neighbour_variables(snap_dir, snap_number, num_neighbours=32):
     #returns array of position, velocity, density, temperature, and mass of gas particles within smoothing_length of the subhalo
     import numpy as np
     import read_fof_files as rff
@@ -153,35 +153,18 @@ def get_smooth_neighbour_variables(snap_dir, snap_number, num_neighbours=32, sub
     a = rff.get_attribute(fof_file, "Time") #scale factor
     redshift = rff.get_attribute(fof_file, "Redshift") #redshift
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)
-    subhaloCM = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloCM')[0], a, h, length=True) #subhalo centre of mass position (kpc)
-    central_coord = cu.cosmo_to_phys(central_coord, a, h, length=True)
+    central_vel = rff.get_subhalo_data(fof_file, 'SubhaloVel')[0] #subhalo velocity (km/s)
     r_vir = cu.cosmo_to_phys(rff.get_group_data(fof_file, "Group_R_Crit200")[0], a, h, length=True)#virial radius (kpc)    
     pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
-    gal_pos = pos0[gal_inds] #halo gas particle positions (kpc)
     mass0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Masses"), a, h, mass=True) #gas particle masses (Msun)
-    gal_mass = mass0[gal_inds]
+
     v_gas0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Velocities"), a, h, velocity=True) #velocity of every gas particle in the snapshot (km/s)    
-    gal_v_gas = v_gas0[gal_inds]
     density0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Density"), a, h, density=True) #density of every gas particle in the snapshot (Msun/kpc^3)
     x_e = rsf.get_snap_data(snap_name,0,"ElectronAbundance") #electron abundance, n_e/n_H
     int_energy = rsf.get_snap_data(snap_name,0,"InternalEnergy")*(10**10) #internal energy of every gas particle in the snapshot (cm/s)^2
 
     #Make the gas tree
-    gal_gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
     gas_tree = spatial.cKDTree(pos0)
-
-    if subhalopos:
-        subhalopos = subhalopos
-    elif subhalocm:
-        subhalopos = subhalocm
-    else:
-        subhalopos = central_coord
-    #Find the mass weighted mean velocity of the gas particles within 2*r_vir of the subhalo
-    central_inds = gal_gas_tree.query_ball_point(subhalopos, 2.0*r_vir) #indices of gas particles within 2*r_vir of the subhalo
-    central_vels = gal_v_gas[central_inds]
-    central_masses = gal_mass[central_inds]
-    central_vel = np.average(central_vels, axis=0, weights=central_masses) #mass weighted mean velocity
-
 
     #subhalopos is now at the origin and the perculiar velocity of the subhalo has been taken away.
     central_index = gas_tree.query(subhalopos, k=1)[1]
@@ -193,9 +176,11 @@ def get_smooth_neighbour_variables(snap_dir, snap_number, num_neighbours=32, sub
     neighbour_v_gas = v_gas0[neighbour_inds] - central_vel
     neighbour_densities = density0[neighbour_inds]
     mu = 4*m_proton/(1+3*X_H+4*X_H*x_e[neighbour_inds])
-    neighbour_Ts = (gamma-1)*int_energy[neighbour_inds]*mu/k_B #temperature of gas cells (K)   
+    neighbour_Ts = (gamma-1)*int_energy[neighbour_inds]*mu/k_B #temperature of gas cells (K)
+    neighbour_energies = int_energy[neighbour_inds]
+    neighbour_electrons = x_e[neighbour_inds]
     neighbour_masses = mass0[neighbour_inds]
-    neighbour_data = np.column_stack((neighbour_pos, neighbour_v_gas, neighbour_densities, neighbour_Ts, neighbour_masses))
+    neighbour_data = np.column_stack((neighbour_pos, neighbour_v_gas, neighbour_densities, neighbour_Ts, neighbour_masses, neighbour_energies, neighbour_electrons))
 
     return neighbour_data
 
@@ -216,7 +201,7 @@ def W_func(r, smoothing_length):
     return result
 
 #categroize the mass flux as inflowing or outflowing
-def in_or_out(snap_dir, snap_number, num_neighbours=32, subhalopos=True, subhalocm=False, central_coord=np.array([0,0,0])):
+def in_or_out(snap_dir, snap_number, num_neighbours=32):
     import numpy as np
     import read_fof_files as rff
     import read_snap_files as rsf
@@ -226,10 +211,6 @@ def in_or_out(snap_dir, snap_number, num_neighbours=32, subhalopos=True, subhalo
     
     #constants
     h = 0.679 #dimensionless Hubble constant
-    k_B = constants.k*1e7 #Boltzmann constant (erg/K)
-    m_proton = constants.m_p*1e3 #proton mass (g)
-    X_H = 0.76 #hydrogen mass fraction
-    gamma = 5/3
 
     #get fof file and snap file
     fof_file = rff.get_fof_filename(snap_dir, snap_number)
@@ -242,8 +223,7 @@ def in_or_out(snap_dir, snap_number, num_neighbours=32, subhalopos=True, subhalo
     #get attributes and convert units
     a = rff.get_attribute(fof_file, "Time") #scale factor
     subhalopos = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloPos')[0], a, h, length=True) #subhalo position (kpc)
-    subhalocm = cu.cosmo_to_phys(rff.get_subhalo_data(fof_file, 'SubhaloCM')[0], a, h, length=True) #subhalo centre of mass position (kpc)
-    central_coord = cu.cosmo_to_phys(central_coord, a, h, length=True)
+    central_vel = rff.get_subhalo_data(fof_file, 'SubhaloVel')[0] #subhalo velocity (km/s)
     r_vir = cu.cosmo_to_phys(rff.get_group_data(fof_file, "Group_R_Crit200")[0], a, h, length=True)#virial radius (kpc)
     pos0 = cu.cosmo_to_phys(rsf.get_snap_data(snap_name,0,"Coordinates"), a, h, length=True) #gas particle positions (kpc)
     gal_pos = pos0[gal_inds] #halo gas particle positions (kpc)
@@ -254,21 +234,7 @@ def in_or_out(snap_dir, snap_number, num_neighbours=32, subhalopos=True, subhalo
     gal_v_gas = v_gas0[gal_inds]
 
     #Make the gas tree
-    gal_gas_tree = spatial.cKDTree(gal_pos) #only build tree with cells from main halo
     gas_tree = spatial.cKDTree(pos0)
-
-    #decide which position to use as a central cell
-    if subhalopos:
-        subhalopos = subhalopos
-    elif subhalocm:
-        subhalopos = subhalocm
-    else:
-        subhalopos = central_coord
-    #Find the mass weighted mean velocity of the gas particles within 2*r_vir of the subhalo
-    central_inds = gal_gas_tree.query_ball_point(subhalopos, 2.0*r_vir) #indices of gas particles within 2*r_vir of the subhalo
-    central_vels = gal_v_gas[central_inds]
-    central_masses = gal_mass[central_inds]
-    central_vel = np.average(central_vels, axis=0, weights=central_masses) #mass weighted mean velocity
 
     central_index = gas_tree.query(subhalopos, k=1)[1]
     central_pos = pos0[central_index]
@@ -351,36 +317,73 @@ if __name__ == '__main__':
 
     snap_dir1 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableLowSNEff"
     snap_dir2 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableLowSNEffHighRes"
+    snap_dir3 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEff"
+    snap_dir4 = "/data/ERCblackholes4/sk939/for_aineias/NoBHFableHighSNEffHighRes"
 
     # Initialize arrays to store results
-    smooth_results = []
-    inout_results = []
 
-    # Loop over snapshots
-    for i in range(40, 87):
-        try:
-            # Get results from both functions for this snapshot
-            smooth_result = get_smooth_neighbour_variables(snap_dir1, i)
-            inout_result = in_or_out(snap_dir2, i)
-            
-            # Append results to arrays
-            smooth_results.append(smooth_result)
-            inout_results.append(inout_result)
-            
-        except Exception as e:
-            print(f"Error processing snapshot {i}: {e}")
-            continue
+    for num_neighbours in [32]:
+        smooth_results = []
+        inout_results = []
 
-    # Convert to numpy arrays
-    smooth_results = np.array(smooth_results)
-    inout_results = np.array(inout_results)
+        # Loop over snapshots
+        for i in range(8, 89):
+            try:
+                # Get results from both functions for this snapshot
+                smooth_result = get_smooth_neighbour_variables(snap_dir1, i)
+                inout_result = in_or_out(snap_dir2, i)
+                
+                # Append results to arrays
+                smooth_results.append(smooth_result)
+                inout_results.append(inout_result)
+                
+            except Exception as e:
+                print(f"Error processing snapshot {i}: {e}")
+                continue
 
-    import os
-    os.chdir("/data/ERCblackholes4/aasnha2/for_aineias/plots")
-    # Save results to npz file
-    np.savez('smooth_and_inout_test_results_lowSNEff.npz', 
-            smooth_results=smooth_results,
-            inout_results=inout_results)
+        # Convert to numpy arrays
+        smooth_results = np.array(smooth_results)
+        inout_results = np.array(inout_results)
+
+        import os
+        os.chdir("/data/ERCblackholes4/aasnha2/for_aineias/plots")
+        # Save results to npz file
+        np.savez('smooth_and_inout_full_results_lowSNEff_'+str(num_neighbours)+'.npz', 
+                smooth_results=smooth_results,
+                inout_results=inout_results)
+        
+        #now for high SNe efficiency
+        smooth_results = []
+        inout_results = []
+
+        # Loop over snapshots
+        for i in range(8, 87):
+            try:
+                # Get results from both functions for this snapshot
+                smooth_result = get_smooth_neighbour_variables(snap_dir3, i)
+                inout_result = in_or_out(snap_dir4, i)
+                
+                # Append results to arrays
+                smooth_results.append(smooth_result)
+                inout_results.append(inout_result)
+                
+            except Exception as e:
+                print(f"Error processing snapshot {i}: {e}")
+                continue
+
+        # Convert to numpy arrays
+        smooth_results = np.array(smooth_results)
+        inout_results = np.array(inout_results)
+
+        import os
+        os.chdir("/data/ERCblackholes4/aasnha2/for_aineias/plots")
+        # Save results to npz file
+        np.savez('smooth_and_inout_full_results_highSNEff_'+str(num_neighbours)+'.npz', 
+                smooth_results=smooth_results,
+                inout_results=inout_results)
+    
+
+
 
 
 
